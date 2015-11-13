@@ -15,6 +15,15 @@ Curl::Curl()
     }
 }
 
+bool Curl::init()
+{
+    static Curl _curlMain;
+
+    setWriteHandler(&defaultWriteHandler, static_cast<void*>(&_buffer));
+
+    return _curlMain._curl != NULL;
+}
+
 Curl::~Curl()
 {
     curl_easy_cleanup(_curl);
@@ -51,6 +60,7 @@ size_t Curl::defaultWriteHandler(void *contents, size_t size, size_t nmemb, void
 
 bool Curl::perform()
 {
+    _buffer.clear();
     CURLcode res;
     res = curl_easy_perform(_curl);
     if(res != CURLE_OK)
@@ -69,14 +79,5 @@ void Curl::print()
 void Curl::getString(std::string& str)
 {
     str.insert(str.end(), _buffer.begin(), _buffer.end());
-}
-
-bool Curl::init()
-{
-    static Curl _curlMain;
-
-    setWriteHandler(&defaultWriteHandler, static_cast<void*>(&_buffer));
-
-    return _curlMain._curl != NULL;
 }
 
